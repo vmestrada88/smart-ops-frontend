@@ -76,13 +76,17 @@ function App() {
             <Route
               path="/admin/products"
               element={
-                <AdminProducts />
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminProducts />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/admin/amazon-shop"
               element={
-                <AdminAmazonShop />
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminAmazonShop />
+                </ProtectedRoute>
               }
             />
             <Route

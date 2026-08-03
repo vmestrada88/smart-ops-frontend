@@ -186,6 +186,7 @@ const AdminAmazonShop = () => {
             <button
               type="button"
               onClick={openImportFromAmazon}
+              data-testid="amazon-shop-import"
               className="bg-white border-2 border-amber-600 text-amber-800 hover:bg-amber-50 px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm"
             >
               <Link2 className="w-5 h-5" />
@@ -194,6 +195,7 @@ const AdminAmazonShop = () => {
             <button
               type="button"
               onClick={openCreate}
+              data-testid="amazon-shop-add"
               className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow"
             >
               <Plus className="w-5 h-5" />
@@ -299,6 +301,7 @@ const AdminAmazonShop = () => {
                 <textarea
                   required
                   rows={3}
+                  data-testid="amazon-shop-import-url"
                   value={importUrl}
                   onChange={(e) => {
                     setImportUrl(e.target.value);
@@ -311,6 +314,7 @@ const AdminAmazonShop = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category (optional)</label>
                 <input
+                  data-testid="amazon-shop-import-category"
                   value={importCategory}
                   onChange={(e) => setImportCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
@@ -319,6 +323,7 @@ const AdminAmazonShop = () => {
               <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
+                  data-testid="amazon-shop-import-published"
                   checked={importPublished}
                   onChange={(e) => setImportPublished(e.target.checked)}
                   className="rounded border-gray-300"
@@ -335,6 +340,7 @@ const AdminAmazonShop = () => {
                 </button>
                 <button
                   type="submit"
+                  data-testid="amazon-shop-import-submit"
                   disabled={importSaving}
                   className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
                 >
@@ -365,6 +371,7 @@ const AdminAmazonShop = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
                 <input
                   required
+                  data-testid="amazon-shop-title"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
@@ -375,6 +382,7 @@ const AdminAmazonShop = () => {
                 <textarea
                   required
                   rows={3}
+                  data-testid="amazon-shop-url"
                   placeholder="https://www.amazon.com/dp/...?tag=yourstore-20"
                   value={form.amazonAffiliateUrl}
                   onChange={(e) => setForm({ ...form, amazonAffiliateUrl: e.target.value })}
@@ -387,6 +395,7 @@ const AdminAmazonShop = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <input
+                  data-testid="amazon-shop-category"
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
@@ -396,6 +405,7 @@ const AdminAmazonShop = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   rows={2}
+                  data-testid="amazon-shop-description"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
@@ -405,6 +415,7 @@ const AdminAmazonShop = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (optional)</label>
                 <input
                   type="url"
+                  data-testid="amazon-shop-image"
                   value={form.imageUrl}
                   onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
                   placeholder="https://..."
@@ -416,6 +427,7 @@ const AdminAmazonShop = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Sort order</label>
                   <input
                     type="number"
+                    data-testid="amazon-shop-order"
                     value={form.displayOrder}
                     onChange={(e) => setForm({ ...form, displayOrder: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -425,6 +437,7 @@ const AdminAmazonShop = () => {
                   <label className="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                     <input
                       type="checkbox"
+                      data-testid="amazon-shop-published"
                       checked={form.isPublished}
                       onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
                       className="rounded border-gray-300"
@@ -439,6 +452,7 @@ const AdminAmazonShop = () => {
                 </button>
                 <button
                   type="submit"
+                  data-testid="amazon-shop-submit"
                   disabled={saving}
                   className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50"
                 >
