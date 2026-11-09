@@ -1,24 +1,26 @@
 /**
  * API Configuration and Utilities Module
- * 
+ *
  * This module provides a centralized way to handle API calls with consistent
  * error handling, base URL configuration, and common fetch settings.
  * It supports multiple environments and runtime URL overrides.
  */
 
+import { resolveApiBaseUrl } from '../utils/resolveApiBaseUrl';
+
 /**
- * Determines the API base URL with the following priority:
- * 1. VITE_API_URL environment variable (build time)
- * 2. window.__RUNTIME_API_URL (runtime override for dynamic configuration)
- * 3. Default localhost development URL
- * 
+ * API base resolution (see `resolveApiBaseUrl`):
+ * - Vite dev + VITE_API_URL pointing at localhost:5000 → `/api` (Vite proxy) unless VITE_DIRECT_API=true
+ * - Else VITE_API_URL, runtime override, dev `/api`, or production fallback
+ *
  * @type {string} The raw base URL that may contain trailing slashes
  */
-const rawBase = (
-  import.meta.env.VITE_API_URL || // Vite environment variable (highest priority)
-  (typeof window !== 'undefined' && window.__RUNTIME_API_URL) || // Browser runtime override
-  'http://localhost:5000/api' // Default fallback for local development
-);
+const rawBase = resolveApiBaseUrl({
+  viteApiUrl: import.meta.env.VITE_API_URL,
+  isViteDev: import.meta.env.DEV,
+  directApi: ['true', '1'].includes(String(import.meta.env.VITE_DIRECT_API || '').toLowerCase()),
+  runtimeUrl: typeof window !== 'undefined' ? window.__RUNTIME_API_URL : '',
+});
 
 /**
  * Normalizes the base URL by removing any trailing slash to ensure
@@ -51,6 +53,8 @@ export const API_CONFIG = {
     PRODUCTS: '/products', 
     /** Invoice processing endpoints */
     INVOICES: '/invoices',
+    /** Proposal processing endpoints */
+    PROPOSALS: '/proposals',
     /** Authentication and authorization endpoints */
     AUTH: '/auth'
   }

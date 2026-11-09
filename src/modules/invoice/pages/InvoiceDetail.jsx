@@ -1,18 +1,20 @@
 /**
- * InvoiceDetail - View invoice details and process payment
+ * InvoiceDetail - View invoice details (no in-app card processing)
  */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchInvoiceById } from '../../../services/invoiceService';
-import StripePayment from '../../../components/StripePayment';
 import toast from 'react-hot-toast';
+
+/** Legacy DB field: non-null means a payment reference was recorded (historical imports). */
+const hasPaymentReference = (invoice) =>
+  invoice?.stripePaymentId != null && String(invoice.stripePaymentId).trim() !== '';
 
 export default function InvoiceDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     loadInvoice();
@@ -28,19 +30,6 @@ export default function InvoiceDetail() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePaymentSuccess = async (paymentIntent) => {
-    toast.success('Payment successful!');
-    setShowPaymentModal(false);
-    
-    // Refresh invoice to show updated payment status
-    await loadInvoice();
-  };
-
-  const handlePaymentError = (error) => {
-    console.error('Payment error:', error);
-    toast.error('Payment failed. Please try again.');
   };
 
   if (loading) {
@@ -67,11 +56,10 @@ export default function InvoiceDetail() {
     );
   }
 
-  const isPaid = invoice.stripePaymentId != null;
+  const isSettled = hasPaymentReference(invoice);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {/* Back Button */}
       <button
         onClick={() => navigate('/invoices')}
         className="mb-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors"
@@ -82,41 +70,38 @@ export default function InvoiceDetail() {
         Back to Invoices
       </button>
 
-      {/* Invoice Header */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Invoice #{invoice.id}</h1>
             <p className="text-gray-600 mt-2">
-              Date: {new Date(invoice.date).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              Date: {new Date(invoice.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
               })}
             </p>
           </div>
-          
-          {/* Payment Status Badge */}
+
           <div>
-            {isPaid ? (
+            {isSettled ? (
               <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                Paid
+                Settled
               </span>
             ) : (
               <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">
                 <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                 </svg>
-                Pending Payment
+                Open
               </span>
             )}
           </div>
         </div>
 
-        {/* Invoice Details */}
         <div className="border-t border-gray-200 pt-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -145,16 +130,16 @@ export default function InvoiceDetail() {
               </div>
             </div>
 
-            {isPaid && (
+            {isSettled && (
               <div>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase mb-2">Payment Info</h2>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase mb-2">Payment reference</h2>
                 <div className="space-y-2">
                   <div className="flex items-start">
                     <svg className="w-5 h-5 text-green-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <div>
-                      <p className="text-sm font-medium text-gray-800">Payment Received</p>
+                      <p className="text-sm font-medium text-gray-800">Recorded</p>
                       <p className="text-xs text-gray-600 mt-1 font-mono break-all">
                         {invoice.stripePaymentId}
                       </p>
@@ -166,7 +151,6 @@ export default function InvoiceDetail() {
           </div>
         </div>
 
-        {/* Totals */}
         <div className="border-t border-gray-200 pt-4">
           <div className="space-y-2 max-w-sm ml-auto">
             <div className="flex justify-between text-gray-600">
@@ -175,7 +159,7 @@ export default function InvoiceDetail() {
                 ${((invoice.laborHours || 0) * (invoice.laborRate || 0)).toFixed(2)}
               </span>
             </div>
-            
+
             {!invoice.taxExempt && (
               <div className="flex justify-between text-gray-600">
                 <span>Tax ({((invoice.taxRate || 0.07) * 100).toFixed(0)}%):</span>
@@ -184,7 +168,7 @@ export default function InvoiceDetail() {
                 </span>
               </div>
             )}
-            
+
             <div className="flex justify-between text-xl font-bold text-gray-800 pt-2 border-t-2 border-gray-300">
               <span>Total:</span>
               <span className="text-blue-600">${(invoice.totalAmount || 0).toFixed(2)}</span>
@@ -193,52 +177,29 @@ export default function InvoiceDetail() {
         </div>
       </div>
 
-      {/* Payment Button */}
-      {!isPaid && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">Ready to pay?</h3>
-              <p className="text-gray-600 mt-1">
-                Secure payment processed by Stripe
-              </p>
-            </div>
-            <button
-              onClick={() => setShowPaymentModal(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
-            >
-              Pay ${(invoice.totalAmount || 0).toFixed(2)}
-            </button>
-          </div>
+      {!isSettled && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Payment</h3>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            This application does not process card payments. Product purchases for clients are handled through
+            our Amazon Associates storefront. For this invoice, follow the payment instructions on your agreement
+            or contact the office.
+          </p>
         </div>
       )}
 
-      {/* Payment Confirmation (if paid) */}
-      {isPaid && (
+      {isSettled && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex items-center">
             <svg className="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             <div>
-              <h3 className="text-lg font-semibold text-green-800">Payment Received</h3>
-              <p className="text-green-700 text-sm mt-1">
-                This invoice has been paid in full
-              </p>
+              <h3 className="text-lg font-semibold text-green-800">Invoice settled</h3>
+              <p className="text-green-700 text-sm mt-1">A payment reference is on file for this invoice.</p>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Stripe Payment Modal */}
-      {showPaymentModal && (
-        <StripePayment
-          amount={invoice.totalAmount || 0}
-          invoiceId={invoice.id}
-          onSuccess={handlePaymentSuccess}
-          onError={handlePaymentError}
-          onCancel={() => setShowPaymentModal(false)}
-        />
       )}
     </div>
   );

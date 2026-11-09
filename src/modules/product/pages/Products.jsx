@@ -5,6 +5,7 @@ import { ProductList, ProductHeader, InvoiceTable, ProposalFormModal } from '../
 import toast from 'react-hot-toast';
 import logo from '../../../assets/logo.jpg';
 import { getLaborCost, generateProposalPDF } from '../../../util';
+import { createPublicProposalRequest } from '../../../services/invoiceService';
 
 /**
  * Products component for displaying and managing the product catalog and invoice.
@@ -40,10 +41,12 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [showProposalForm, setShowProposalForm] = useState(false);
+  const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
   const [proposalData, setProposalData] = useState({
     name: '',
     contact: '',
-    address: ''
+    address: '',
+    notes: ''
   });
 
   const updateQuantity = (id, newQuantity) => {
@@ -140,6 +143,54 @@ function Products() {
     0
   );
 
+  const handleSendProposal = async () => {
+    if (!proposalData.name?.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+
+    if (!proposalData.contact?.trim()) {
+      toast.error('Phone or Email is required');
+      return;
+    }
+
+    if (!selectedItems.length) {
+      toast.error('Add at least one product before sending');
+      return;
+    }
+
+    const itemsPayload = selectedItems.map((item) => ({
+      productId: item._id ?? item.id,
+      name: item.name,
+      description: item.description || '',
+      quantity: Number(item.quantity || 1),
+      unitPrice: Number(item.priceSell || 0),
+      laborCost: Number(getLaborCost(item.category) || 0)
+    }));
+
+    setIsSubmittingProposal(true);
+
+    try {
+      await createPublicProposalRequest({
+        name: proposalData.name,
+        contact: proposalData.contact,
+        address: proposalData.address,
+        notes: proposalData.notes,
+        items: itemsPayload
+      });
+
+      toast.success('Proposal request sent successfully');
+      setShowProposalForm(false);
+      setProposalData({ name: '', contact: '', address: '', notes: '' });
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error sending proposal request:', error);
+      toast.error(error?.message || 'Error sending proposal request');
+    } finally {
+      setIsSubmittingProposal(false);
+    }
+  };
+
   return (
     
     <div className="p-4">
@@ -165,6 +216,8 @@ function Products() {
         setShowProposalForm={setShowProposalForm}
         proposalData={proposalData}
         setProposalData={setProposalData}
+        onSubmitProposal={handleSendProposal}
+        isSubmitting={isSubmittingProposal}
       />
     </div>
   );

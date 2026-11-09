@@ -180,7 +180,7 @@ const BasicInvoicePDF = ({
     doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 14, y);
     y += 6;
     if (taxExempt) {
-      doc.text(`Tax (7%): $0.00 (Tax Exempt)`, 14, y);
+      doc.text('Tax (7%): $0.00 (Tax Exempt)', 14, y);
     } else {
       doc.text(`Tax (7%): $${tax.toFixed(2)}`, 14, y);
     }

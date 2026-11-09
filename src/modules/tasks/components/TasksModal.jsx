@@ -10,7 +10,6 @@ const TasksModal = ({ isOpen, onClose, onSave, initial = {}, clients = [], users
       setErrors([]);
       setForm(f => ({ ...f, ...initial, assignedTo: initial.assignedTo || [] }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initial]);
 
   const handleChange = (e) => {

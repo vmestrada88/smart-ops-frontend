@@ -17,6 +17,12 @@ import { api } from '../../../services';
 import { useNavigate } from 'react-router-dom';
 import { ShieldUser } from 'lucide-react';
 
+const statusClasses = {
+  prospect: 'bg-blue-100 text-blue-800',
+  active: 'bg-green-100 text-green-800',
+  inactive: 'bg-gray-200 text-gray-700'
+};
+
 const ClientList = () => {
   const [clients, setClients] = useState([]);
   const navigate = useNavigate();
@@ -54,6 +60,11 @@ const ClientList = () => {
                 <div>
                   <h3 className="text-xl font-semibold">{client.companyName || 'No Name'}</h3>
                   <p>{client.address}, {client.city}, {client.state} {client.zip}</p>
+                  <p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusClasses[client.status] || statusClasses.active}`}>
+                      {(client.status || 'active').toUpperCase()}
+                    </span>
+                  </p>
                   <p>Contacts: {client.contacts?.length ?? 0}</p>
                 </div>
               </li>

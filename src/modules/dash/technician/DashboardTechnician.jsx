@@ -42,7 +42,7 @@ const DashboardTechnician = () => {
             <p className="text-gray-600">View and manage products.</p>
           </Link>
 
-                    <Link
+          <Link
             to="/products"
             className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
           >

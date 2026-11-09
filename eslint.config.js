@@ -43,6 +43,11 @@ export default [
         performance: 'readonly',
         require: 'readonly',
         module: 'readonly',
+        process: 'readonly',
+        URL: 'readonly',
+        Response: 'readonly',
+        atob: 'readonly',
+        setTimeout: 'readonly',
       }
     },
     plugins: {
@@ -55,13 +60,25 @@ export default [
     },
     rules: {
       'indent': ['error', 2],
-      'linebreak-style': ['error', 'windows'],
+      'linebreak-style': 'off',
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
       'no-unused-vars': 'warn',
+      'no-useless-catch': 'warn',
       'react/jsx-uses-react': 'off',
       'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off'
+      'react/prop-types': 'off',
+      'react/no-unescaped-entities': 'warn',
+    }
+  },
+  {
+    files: ['**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: 'module',
+      globals: {
+        process: 'readonly',
+      }
     }
   }
 ];

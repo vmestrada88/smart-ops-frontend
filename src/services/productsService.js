@@ -60,7 +60,7 @@ export const fetchProducts = async () => {
  * @param {number} productData.priceBuy - Purchase price.
  * @param {number} productData.priceSell - Selling price.
  * @param {number} productData.quantity - Available quantity.
- * @param {string} productData.category - Product category.
+ * @param {string} [productData.category] - Product category.
  * @returns {Promise<Object>} Promise resolving to the created product object.
  * @throws {Error} If there's an error creating the product.
  */

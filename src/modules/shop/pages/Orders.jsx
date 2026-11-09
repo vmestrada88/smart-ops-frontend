@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../../../services/shopService';
 import { Package, Eye, Truck, CheckCircle, XCircle, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -32,35 +31,35 @@ const Orders = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending':
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case 'paid':
-        return <CheckCircle className="h-5 w-5 text-blue-500" />;
-      case 'shipped':
-        return <Truck className="h-5 w-5 text-orange-500" />;
-      case 'delivered':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'cancelled':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
+    case 'pending':
+      return <Clock className="h-5 w-5 text-yellow-500" />;
+    case 'paid':
+      return <CheckCircle className="h-5 w-5 text-blue-500" />;
+    case 'shipped':
+      return <Truck className="h-5 w-5 text-orange-500" />;
+    case 'delivered':
+      return <CheckCircle className="h-5 w-5 text-green-500" />;
+    case 'cancelled':
+      return <XCircle className="h-5 w-5 text-red-500" />;
+    default:
+      return <Clock className="h-5 w-5 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'paid':
-        return 'bg-blue-100 text-blue-800';
-      case 'shipped':
-        return 'bg-orange-100 text-orange-800';
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'paid':
+      return 'bg-blue-100 text-blue-800';
+    case 'shipped':
+      return 'bg-orange-100 text-orange-800';
+    case 'delivered':
+      return 'bg-green-100 text-green-800';
+    case 'cancelled':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
     }
   };
 

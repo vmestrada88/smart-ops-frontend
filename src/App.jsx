@@ -21,6 +21,7 @@ import ClientDetails from './modules/clients/components/ClientDetails';
 import { InvoicePage } from './modules/invoice/pages/InvoicePage';
 import InvoiceList from './modules/invoice/pages/InvoiceList';
 import InvoiceDetail from './modules/invoice/pages/InvoiceDetail';
+import ProposalList from './modules/invoice/pages/ProposalList';
 import Login from './modules/authentication/pages/Login';
 import DashboardAdmin from './modules/dash/admin/DashboardAdmin';
 import DashboardTechnician from './modules/dash/technician/DashboardTechnician';
@@ -28,10 +29,9 @@ import DashboardClient from './modules/dash/client/DashboardClient';
 
 import ProtectedRoute from './modules/authentication/components/ProtectedRoute';
 import Shop from './modules/shop/pages/Shop';
-import Cart from './modules/shop/pages/Cart';
-import Checkout from './modules/shop/pages/Checkout';
 import Orders from './modules/shop/pages/Orders';
 import AdminProducts from './modules/admin/products/pages/AdminProducts';
+import AdminAmazonShop from './modules/admin/amazon-shop/pages/AdminAmazonShop';
 
 function App() {
   return (
@@ -76,7 +76,17 @@ function App() {
             <Route
               path="/admin/products"
               element={
-                <AdminProducts />
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminProducts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/amazon-shop"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminAmazonShop />
+                </ProtectedRoute>
               }
             />
             <Route
@@ -123,6 +133,24 @@ function App() {
               }
             />
 
+            <Route
+              path="/proposals"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ProposalList />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/proposals/:proposalId/edit"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <InvoicePage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* CLIENT */}
             {/* <Route
               path="/profile"
@@ -134,22 +162,6 @@ function App() {
             /> */}
 
             {/* SHOP */}
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'client', 'technician']}>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'client', 'technician']}>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path="/orders"
               element={

@@ -4,9 +4,11 @@
  * @module services/clientsService
  * @description Provides methods for fetching, creating, updating, and deleting clients.
  */
-import { API_CONFIG, fetchConfig } from './api';
+import { API_CONFIG } from './api';
+import { api } from './httpClient';
 
-const BASE = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTS}`;
+// Uses the axios client so the JWT is attached; every /clients endpoint requires auth
+const BASE = API_CONFIG.ENDPOINTS.CLIENTS;
 
 /**
  * Fetches all clients from the API.
@@ -17,9 +19,12 @@ const BASE = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CLIENTS}`;
  * @throws {Error} If there's an error fetching clients.
  */
 export const fetchClients = async () => {
-  const res = await fetch(BASE, { ...fetchConfig });
-  if (!res.ok) throw new Error('Error fetching clients');
-  return res.json();
+  try {
+    const res = await api.get(BASE);
+    return res.data;
+  } catch {
+    throw new Error('Error fetching clients');
+  }
 };
 
 /**
@@ -36,33 +41,37 @@ export const fetchClients = async () => {
  * @throws {Error} If there's an error creating the client.
  */
 export const createClient = async (clientData) => {
-  const res = await fetch(BASE, {
-    method: 'POST',
-    ...fetchConfig,
-    body: JSON.stringify(clientData)
-  });
-  if (!res.ok) throw new Error('Error creating client');
-  return res.json();
+  try {
+    const res = await api.post(BASE, clientData);
+    return res.data;
+  } catch {
+    throw new Error('Error creating client');
+  }
 };
 
 export const updateClient = async (id, clientData) => {
-  const res = await fetch(`${BASE}/${id}`, {
-    method: 'PUT',
-    ...fetchConfig,
-    body: JSON.stringify(clientData)
-  });
-  if (!res.ok) throw new Error('Error updating client');
-  return res.json();
+  try {
+    const res = await api.put(`${BASE}/${id}`, clientData);
+    return res.data;
+  } catch {
+    throw new Error('Error updating client');
+  }
 };
 
 export const deleteClient = async (id) => {
-  const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
-  if (!res.ok) throw new Error('Error deleting client');
-  return res.json();
+  try {
+    const res = await api.delete(`${BASE}/${id}`);
+    return res.data;
+  } catch {
+    throw new Error('Error deleting client');
+  }
 };
 
 export const getClientById = async (id) => {
-  const res = await fetch(`${BASE}/${id}`);
-  if (!res.ok) throw new Error('Error fetching client');
-  return res.json();
+  try {
+    const res = await api.get(`${BASE}/${id}`);
+    return res.data;
+  } catch {
+    throw new Error('Error fetching client');
+  }
 };

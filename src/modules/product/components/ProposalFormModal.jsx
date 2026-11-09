@@ -1,4 +1,3 @@
-import toast from 'react-hot-toast';
 import PropTypes from 'prop-types';
 
 /**
@@ -9,8 +8,10 @@ import PropTypes from 'prop-types';
  * @param {Function} setShowProposalForm - Function to toggle modal visibility
  * @param {Object} proposalData - Form data object containing name, contact, address, notes
  * @param {Function} setProposalData - Function to update form data
+ * @param {Function} onSubmitProposal - Submit handler for sending proposal request
+ * @param {boolean} isSubmitting - Indicates submit is in progress
  */
-const ProposalFormModal = ({ showProposalForm, setShowProposalForm, proposalData, setProposalData }) => {
+const ProposalFormModal = ({ showProposalForm, setShowProposalForm, proposalData, setProposalData, onSubmitProposal, isSubmitting }) => {
   if (!showProposalForm) return null;
 
   return (
@@ -20,9 +21,7 @@ const ProposalFormModal = ({ showProposalForm, setShowProposalForm, proposalData
         <form
           onSubmit={e => {
             e.preventDefault();
-
-            setShowProposalForm(false);
-            toast.success('Request sent');
+            onSubmitProposal();
           }}
           className="space-y-3"
         >
@@ -62,15 +61,17 @@ const ProposalFormModal = ({ showProposalForm, setShowProposalForm, proposalData
             <button
               type="button"
               onClick={() => setShowProposalForm(false)}
+              disabled={isSubmitting}
               className="bg-gray-300 px-4 py-2 rounded"
             >
               Cancel
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="bg-blue-600 text-white px-4 py-2 rounded"
             >
-              Send
+              {isSubmitting ? 'Sending...' : 'Send'}
             </button>
           </div>
         </form>
@@ -88,7 +89,9 @@ ProposalFormModal.propTypes = {
     address: PropTypes.string,
     notes: PropTypes.string
   }).isRequired,
-  setProposalData: PropTypes.func.isRequired
+  setProposalData: PropTypes.func.isRequired,
+  onSubmitProposal: PropTypes.func.isRequired,
+  isSubmitting: PropTypes.bool
 };
 
 export default ProposalFormModal;

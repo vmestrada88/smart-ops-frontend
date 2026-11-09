@@ -50,6 +50,7 @@ export default function ClientDetails() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zip, setZip] = useState('');
+  const [status, setStatus] = useState('active');
   const [contacts, setContacts] = useState([]);
   const [jobs, setJobs] = useState([]);
 
@@ -69,6 +70,7 @@ export default function ClientDetails() {
         setCity(res.data.city || '');
         setState(res.data.state || '');
         setZip(res.data.zip || '');
+        setStatus(res.data.status || 'active');
         setContacts(res.data.contacts || []);
         setJobs(res.data.jobs || []);
       } catch (error) {
@@ -89,6 +91,7 @@ export default function ClientDetails() {
         city,
         state,
         zip,
+        status,
         contacts,
       });
       toast.success('Updated Info');
@@ -197,6 +200,16 @@ export default function ClientDetails() {
               className="w-28 p-2 border rounded"
             />
           </div>
+
+          <select
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            className="w-full p-2 border rounded mt-2"
+          >
+            <option value="prospect">Prospect</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
 
           <h4 className="text-lg font-semibold mt-4">Contacts</h4>
           {contacts.map((contact, i) => (

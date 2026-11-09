@@ -18,7 +18,7 @@ export default function getLaborCost(category) {
     return 90;
   case 'Hard Drive':
     return 0;
-    case 'Camera By Client':
+  case 'Camera By Client':
     return 120;
   case 'Recorder By Client':
     return 120;

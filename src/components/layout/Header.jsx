@@ -17,6 +17,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     navigate('/login');
     setIsMenuOpen(false);
   };
@@ -62,14 +63,16 @@ const Header = () => {
           </Link>
         )}
 
-        <Link to="/products" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Products</Link>
+        <Link to="/products" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Propousal generator</Link>
         <Link to="/shop" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Shop</Link>
 
         {role === 'admin' && (
           <>
             <Link to="/clients" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Clients</Link>
             <Link to="/invoices" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Invoices</Link>
+            <Link to="/proposals" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left">Proposals</Link>
             <Link to="/admin/products" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left bg-yellow-600 px-2 py-1 rounded">Manage Products</Link>
+            <Link to="/admin/amazon-shop" onClick={closeMenu} className="hover:text-gray-200 border-b border-white pb-1 sm:pb-2 w-full sm:w-auto text-center sm:text-left bg-amber-700 px-2 py-1 rounded">Amazon shop</Link>
           </>
         )}
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Users, Box, FileText } from 'lucide-react';
+import { Users, Box, FileText, ShoppingBag } from 'lucide-react';
 
 /**
  * DashboardAdmin component displays the admin dashboard with access to key sections.
@@ -45,6 +45,19 @@ const DashboardAdmin = () => {
               <h2 className="text-xl font-semibold text-green-600">Products</h2>
             </div>
             <p className="text-gray-600">Manage and edit products inventory.</p>
+          </Link>
+          
+          <Link
+            to="/admin/amazon-shop"
+            className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+          >
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mr-3">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-semibold text-amber-600">Shop (Amazon)</h2>
+            </div>
+            <p className="text-gray-600">Manage Amazon Associates product listings shown on the public Shop.</p>
           </Link>
           
           <Link

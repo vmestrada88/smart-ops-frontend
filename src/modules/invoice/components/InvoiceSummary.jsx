@@ -29,12 +29,13 @@
  *
  * @returns {JSX.Element} The rendered invoice summary component.
  */
-import { fetchProducts } from '../../../services/productsService';
-
 export default function InvoiceSummary({
   selectedItems,
   extraCosts = [],
   discount = [],
+  laborHours = 0,
+  hourlyRate = 0,
+  totalLabor = 0,
   subtotal,
   tax,
   total,
@@ -45,11 +46,16 @@ export default function InvoiceSummary({
   getLaborCost,
   invoiceRef,
   notes,
+  documentType = 'invoice',
   taxExempt = false,
+  onUpdateLabor = () => {},
+  onRemoveLabor = () => {},
 }) {
+  const isProposal = documentType === 'proposal';
+
   return (
     <div ref={invoiceRef} className="bg-white p-6 rounded shadow w-full max-w-[800px] mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Invoice Summary</h3>
+      <h3 className="text-xl font-semibold mb-4">{isProposal ? 'Proposal Summary' : 'Invoice Summary'}</h3>
 
       {/* PRODUCTOS */}
       <table className="w-full mb-4 border-collapse">
@@ -124,9 +130,59 @@ export default function InvoiceSummary({
       </table>
 
       {/* EXTRA COSTS */}
+      {totalLabor > 0 && (
+        <div className="mb-4">
+          <h4 className="font-semibold mb-2">Manual Labor</h4>
+          <div className="border rounded px-3 py-2 bg-gray-50">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">Hours</span>
+                <button
+                  onClick={() => onUpdateLabor({ hours: Math.max(0, laborHours - 0.5) })}
+                  className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                >
+                  -
+                </button>
+                <span className="min-w-[40px] text-center">{laborHours}</span>
+                <button
+                  onClick={() => onUpdateLabor({ hours: laborHours + 0.5 })}
+                  className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">Rate $/hr</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="5"
+                  value={hourlyRate}
+                  onChange={(e) => onUpdateLabor({ rate: Number.parseFloat(e.target.value) || 0 })}
+                  className="w-28 p-1 border rounded"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">${totalLabor.toFixed(2)}</span>
+                <button
+                  onClick={onRemoveLabor}
+                  className="text-red-500 hover:text-red-700"
+                  title="Remove labor"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXTRA COSTS */}
       {extraCosts.length > 0 && (
         <div className="mb-4">
-          <h4 className="font-semibold mb-2">Other Charges</h4>
+          <h4 className="font-semibold mb-2">{isProposal ? 'Additional Proposal Charges' : 'Other Charges'}</h4>
           <ul className="list-disc list-inside space-y-1">
             {extraCosts.map((extra, idx) => (
               <li key={idx} className="flex justify-between items-center">
@@ -149,7 +205,7 @@ export default function InvoiceSummary({
       {/* DISCOUNTS */}
       {Array.isArray(discount) && discount.length > 0 && (
         <div className="mb-4">
-          <h4 className="font-semibold mb-2">Discounts</h4>
+          <h4 className="font-semibold mb-2">{isProposal ? 'Proposal Discounts' : 'Discounts'}</h4>
           <ul className="list-disc list-inside space-y-1">
             {discount.map((d, idx) => (
               <li key={idx} className="flex justify-between items-center">

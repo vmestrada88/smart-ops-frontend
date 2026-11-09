@@ -6,13 +6,20 @@
  *              with preconfigured base URL and headers. Also provides error extraction utility.
  */
 import axios from 'axios';
+import { resolveApiBaseUrl } from '../utils/resolveApiBaseUrl';
 
 /**
- * Base API URL determined from environment variables or defaulting to localhost.
- * Removes trailing slashes for consistency.
+ * Base API URL (same rules as `api.js` / `resolveApiBaseUrl`).
  * @constant {string}
  */
-export const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+const rawApiBase = resolveApiBaseUrl({
+  viteApiUrl: import.meta.env.VITE_API_URL,
+  isViteDev: import.meta.env.DEV,
+  directApi: ['true', '1'].includes(String(import.meta.env.VITE_DIRECT_API || '').toLowerCase()),
+  runtimeUrl: typeof window !== 'undefined' ? window.__RUNTIME_API_URL : '',
+});
+
+export const API_BASE = String(rawApiBase).replace(/\/$/, '');
 
 /**
  * Configured axios instance for JSON API requests.

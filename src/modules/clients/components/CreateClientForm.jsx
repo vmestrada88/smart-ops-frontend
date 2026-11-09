@@ -32,17 +32,18 @@
  * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
  */
 import { useState } from 'react';
-import axios from 'axios';
 import Button from '../../../components/ui/Button';
 import toast from 'react-hot-toast';
+import { api, extractError } from '../../../services';
 
-const CreateClientForm = () => {
+const CreateClientForm = ({ onSuccess, onCancel, hideTitle = false, className = '' }) => {
   const [clientData, setClientData] = useState({
     companyName: '',
     address: '',
     city: '',
     state: '',
     zip: '',
+    status: 'active',
     contacts: [{ name: '', email: '', phone: '', role: '' }],
   });
 
@@ -77,30 +78,32 @@ const CreateClientForm = () => {
         return;
       }
 
-      await axios.post('http://localhost:5000/api/clients', clientData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include token in header
-        },
-      });
+      const response = await api.post('/clients', clientData);
+      const createdClient = response?.data;
 
       toast.success('Client created successfully');
+
+      if (onSuccess) {
+        onSuccess(createdClient);
+      }
+
       setClientData({
         companyName: '',
         address: '',
         city: '',
         state: '',
         zip: '',
+        status: 'active',
         contacts: [{ name: '', email: '', phone: '', role: '' }],
       });
     } catch (err) {
-      toast.error('Error creating client: ' + (err.response?.data?.message || err.message));
+      toast.error('Error creating client: ' + extractError(err));
     }
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">Create New Client</h2>
+    <div className={`p-4 max-w-2xl mx-auto ${className}`}>
+      {!hideTitle && <h2 className="text-xl font-bold mb-4">Create New Client</h2>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           name="companyName"
@@ -142,6 +145,18 @@ const CreateClientForm = () => {
           value={clientData.zip}
           required
         />
+
+        <select
+          name="status"
+          className="w-full p-2 border"
+          onChange={handleChange}
+          value={clientData.status}
+          required
+        >
+          <option value="prospect">Prospect</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
 
         <h3 className="text-lg font-semibold mt-4">Contacts</h3>
         {clientData.contacts.map((contact, index) => (
@@ -192,7 +207,14 @@ const CreateClientForm = () => {
           Add Contact
         </Button>
 
-        <Button type="submit">Save Client</Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" onClick={onCancel} className="bg-gray-300 hover:bg-gray-400 text-black">
+              Cancel
+            </Button>
+          )}
+          <Button type="submit">Save Client</Button>
+        </div>
       </form>
     </div>
   );
