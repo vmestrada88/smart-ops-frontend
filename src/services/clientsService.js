@@ -4,11 +4,10 @@
  * @module services/clientsService
  * @description Provides methods for fetching, creating, updating, and deleting clients.
  */
-import { API_CONFIG } from './api';
-import { api } from './httpClient';
+import { api, ENDPOINTS } from './httpClient';
 
 // Uses the axios client so the JWT is attached; every /clients endpoint requires auth
-const BASE = API_CONFIG.ENDPOINTS.CLIENTS;
+const BASE = ENDPOINTS.CLIENTS;
 
 /**
  * Fetches all clients from the API.

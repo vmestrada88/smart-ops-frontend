@@ -1,60 +1,25 @@
 /**
  * Invoice Service
- * API calls for invoice management
+ * API calls for invoice and proposal management
  */
 
-import { API_CONFIG, fetchConfig } from './api';
+import { apiRequest, ENDPOINTS } from './httpClient';
 
-const BASE = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.INVOICES}`;
-const PROPOSALS_BASE = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROPOSALS}`;
-
-const authHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    ...fetchConfig.headers,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
-
-const clearAuth = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-};
-
-const parseAndThrow = async (res) => {
-  let detail;
-  try {
-    detail = await res.json();
-  } catch {
-    detail = null;
-  }
-
-  if (res.status === 401 || res.status === 403) {
-    clearAuth();
-    throw new Error(detail?.message || 'Session expired. Please login again.');
-  }
-
-  throw new Error(detail?.error || `HTTP ${res.status}`);
-};
+const BASE = ENDPOINTS.INVOICES;
+const PROPOSALS_BASE = ENDPOINTS.PROPOSALS;
 
 /**
  * Get all invoices
  * @returns {Promise<Array>} List of all invoices
  */
-export const fetchInvoices = async () => {
-  const res = await fetch(BASE, { headers: authHeaders() });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const fetchInvoices = () => apiRequest({ method: 'GET', url: BASE }, 'Invoices');
 
 /**
  * Get all proposals
  * @returns {Promise<Array>} List of all proposals
  */
 export const fetchProposals = async () => {
-  const res = await fetch(PROPOSALS_BASE, { headers: authHeaders() });
-  if (!res.ok) await parseAndThrow(res);
-  const data = await res.json();
+  const data = await apiRequest({ method: 'GET', url: PROPOSALS_BASE }, 'Proposals');
   return Array.isArray(data) ? data : (Array.isArray(data?.proposals) ? data.proposals : []);
 };
 
@@ -63,37 +28,24 @@ export const fetchProposals = async () => {
  * @param {number|string} id - Proposal ID
  * @returns {Promise<Object>} Proposal details
  */
-export const fetchProposalById = async (id) => {
-  const res = await fetch(`${PROPOSALS_BASE}/${id}`, { headers: authHeaders() });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const fetchProposalById = (id) =>
+  apiRequest({ method: 'GET', url: `${PROPOSALS_BASE}/${id}` }, 'Proposal');
 
 /**
  * Get invoice by ID
  * @param {number} id - Invoice ID
  * @returns {Promise<Object>} Invoice details
  */
-export const fetchInvoiceById = async (id) => {
-  const res = await fetch(`${BASE}/${id}`, { headers: authHeaders() });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const fetchInvoiceById = (id) =>
+  apiRequest({ method: 'GET', url: `${BASE}/${id}` }, 'Invoice');
 
 /**
  * Create new invoice
  * @param {Object} invoiceData - Invoice data
  * @returns {Promise<Object>} Created invoice
  */
-export const createInvoice = async (invoiceData) => {
-  const res = await fetch(BASE, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(invoiceData)
-  });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const createInvoice = (invoiceData) =>
+  apiRequest({ method: 'POST', url: BASE, data: invoiceData }, 'Create invoice');
 
 /**
  * Update invoice
@@ -101,41 +53,24 @@ export const createInvoice = async (invoiceData) => {
  * @param {Object} invoiceData - Updated invoice data
  * @returns {Promise<Object>} Updated invoice
  */
-export const updateInvoice = async (id, invoiceData) => {
-  const res = await fetch(`${BASE}/${id}`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify(invoiceData)
-  });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const updateInvoice = (id, invoiceData) =>
+  apiRequest({ method: 'PUT', url: `${BASE}/${id}`, data: invoiceData }, 'Update invoice');
 
 /**
  * Delete invoice
  * @param {number} id - Invoice ID
- * @returns {Promise<void>}
+ * @returns {Promise<Object>}
  */
-export const deleteInvoice = async (id) => {
-  const res = await fetch(`${BASE}/${id}`, { method: 'DELETE', headers: authHeaders() });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const deleteInvoice = (id) =>
+  apiRequest({ method: 'DELETE', url: `${BASE}/${id}` }, 'Delete invoice');
 
 /**
  * Create new proposal
  * @param {Object} proposalData - Proposal data
  * @returns {Promise<Object>} Created proposal
  */
-export const createProposal = async (proposalData) => {
-  const res = await fetch(PROPOSALS_BASE, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(proposalData)
-  });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const createProposal = (proposalData) =>
+  apiRequest({ method: 'POST', url: PROPOSALS_BASE, data: proposalData }, 'Create proposal');
 
 /**
  * Update proposal
@@ -143,15 +78,8 @@ export const createProposal = async (proposalData) => {
  * @param {Object} proposalData - Updated proposal data
  * @returns {Promise<Object>} Updated proposal
  */
-export const updateProposal = async (id, proposalData) => {
-  const res = await fetch(`${PROPOSALS_BASE}/${id}`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify(proposalData)
-  });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const updateProposal = (id, proposalData) =>
+  apiRequest({ method: 'PUT', url: `${PROPOSALS_BASE}/${id}`, data: proposalData }, 'Update proposal');
 
 /**
  * Update proposal status
@@ -159,38 +87,16 @@ export const updateProposal = async (id, proposalData) => {
  * @param {string} status - New status
  * @returns {Promise<Object>} Status update response
  */
-export const updateProposalStatus = async (id, status) => {
-  const res = await fetch(`${PROPOSALS_BASE}/${id}/status`, {
-    method: 'PATCH',
-    headers: authHeaders(),
-    body: JSON.stringify({ status })
-  });
-  if (!res.ok) await parseAndThrow(res);
-  return res.json();
-};
+export const updateProposalStatus = (id, status) =>
+  apiRequest({ method: 'PATCH', url: `${PROPOSALS_BASE}/${id}/status`, data: { status } }, 'Update proposal status');
 
 /**
  * Create proposal request from public products page (no auth required).
  * @param {Object} proposalData - Public proposal request data
  * @returns {Promise<Object>} Created request response
  */
-export const createPublicProposalRequest = async (proposalData) => {
-  const res = await fetch(`${PROPOSALS_BASE}/public-request`, {
-    method: 'POST',
-    headers: fetchConfig.headers,
-    body: JSON.stringify(proposalData)
-  });
-
-  let detail;
-  try {
-    detail = await res.json();
-  } catch {
-    detail = null;
-  }
-
-  if (!res.ok) {
-    throw new Error(detail?.error || `HTTP ${res.status}`);
-  }
-
-  return detail;
-};
+export const createPublicProposalRequest = (proposalData) =>
+  apiRequest(
+    { method: 'POST', url: `${PROPOSALS_BASE}/public-request`, data: proposalData, skipAuth: true },
+    'Proposal request'
+  );

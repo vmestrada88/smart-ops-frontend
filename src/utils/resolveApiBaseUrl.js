@@ -1,5 +1,7 @@
 /**
- * Resolves the API base URL for fetch/axios.
+ * Resolves the API base URL for the shared axios client (services/httpClient).
+ * VITE_API_URL is the source of truth; with no env or runtime override the app
+ * falls back to same-origin `/api` rather than a hardcoded host.
  * In Vite dev, VITE_API_URL=http://localhost:5000/api often hits the wrong process on the host;
  * same-origin /api is proxied (see vite.config.mjs). Opt out with VITE_DIRECT_API=true.
  */
@@ -35,7 +37,7 @@ export function resolveApiBaseUrl(opts) {
     isViteDev = false,
     directApi = false,
     runtimeUrl = '',
-    productionFallback = 'http://localhost:5000/api',
+    productionFallback = '/api',
   } = opts || {};
 
   if (isViteDev && !directApi && viteApiUrl && isLocalLoopbackPort5000(viteApiUrl)) {
