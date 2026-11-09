@@ -32,11 +32,20 @@ describe('resolveApiBaseUrl', () => {
     ).toBe('https://api.example.com/api');
   });
 
-  it('uses production fallback when not dev and no env', () => {
+  it('falls back to same-origin /api when not dev and no env', () => {
     expect(
       resolveApiBaseUrl({
         isViteDev: false,
       })
-    ).toBe('http://localhost:5000/api');
+    ).toBe('/api');
+  });
+
+  it('uses VITE_API_URL in production builds', () => {
+    expect(
+      resolveApiBaseUrl({
+        viteApiUrl: 'https://api.example.com/api',
+        isViteDev: false,
+      })
+    ).toBe('https://api.example.com/api');
   });
 });

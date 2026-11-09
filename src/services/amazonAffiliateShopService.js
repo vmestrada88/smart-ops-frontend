@@ -2,18 +2,9 @@
  * Public Amazon Associates storefront (separate from inventory /api/products).
  * @module services/amazonAffiliateShopService
  */
-import { API_CONFIG, fetchConfig } from './api';
-import { readJsonResponse } from '../utils/readJsonResponse';
+import { apiRequest, ENDPOINTS } from './httpClient';
 
-const LISTINGS_BASE = `${API_CONFIG.BASE_URL}/shop/amazon-listings`;
-
-const authHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    ...fetchConfig.headers,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-};
+const BASE = ENDPOINTS.AMAZON_LISTINGS;
 
 /**
  * Maps API listing to the card shape used by the shop ProductCard.
@@ -32,68 +23,25 @@ export function toCatalogProduct(listing) {
   };
 }
 
-function throwIfNotOk(res, body, label) {
-  if (res.ok) return;
-  const msg =
-    (body && typeof body === 'object' && (body.message || body.error || body.details)) ||
-    `HTTP ${res.status}`;
-  throw new Error(typeof msg === 'string' ? msg : `HTTP ${res.status}`);
-}
-
 export async function fetchPublishedAmazonAffiliateListings() {
-  const res = await fetch(LISTINGS_BASE, { ...fetchConfig });
-  const body = await readJsonResponse(res, 'Amazon shop listings');
-  throwIfNotOk(res, body, 'Amazon shop listings');
+  const body = await apiRequest({ method: 'GET', url: BASE, skipAuth: true }, 'Amazon shop listings');
   const rows = Array.isArray(body) ? body : [];
   return rows.map(toCatalogProduct);
 }
 
-export async function fetchAmazonAffiliateListingsAdmin() {
-  const res = await fetch(`${LISTINGS_BASE}/admin/all`, { headers: authHeaders() });
-  const body = await readJsonResponse(res, 'Amazon affiliate admin list');
-  throwIfNotOk(res, body, 'Amazon affiliate admin list');
-  return body;
-}
+export const fetchAmazonAffiliateListingsAdmin = () =>
+  apiRequest({ method: 'GET', url: `${BASE}/admin/all` }, 'Amazon affiliate admin list');
 
-export async function importAmazonListingFromUrl(body) {
-  const res = await fetch(`${LISTINGS_BASE}/import-from-url`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(body),
-  });
-  const data = await readJsonResponse(res, 'Amazon import from URL');
-  throwIfNotOk(res, data, 'Amazon import');
-  return data;
-}
+export const importAmazonListingFromUrl = (body) =>
+  apiRequest({ method: 'POST', url: `${BASE}/import-from-url`, data: body }, 'Amazon import from URL');
 
-export async function createAmazonAffiliateListing(body) {
-  const res = await fetch(LISTINGS_BASE, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(body),
-  });
-  const data = await readJsonResponse(res, 'Create Amazon listing');
-  throwIfNotOk(res, data, 'Create Amazon listing');
-  return data;
-}
+export const createAmazonAffiliateListing = (body) =>
+  apiRequest({ method: 'POST', url: BASE, data: body }, 'Create Amazon listing');
 
-export async function updateAmazonAffiliateListing(id, body) {
-  const res = await fetch(`${LISTINGS_BASE}/${id}`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify(body),
-  });
-  const data = await readJsonResponse(res, 'Update Amazon listing');
-  throwIfNotOk(res, data, 'Update Amazon listing');
-  return data;
-}
+export const updateAmazonAffiliateListing = (id, body) =>
+  apiRequest({ method: 'PUT', url: `${BASE}/${id}`, data: body }, 'Update Amazon listing');
 
 export async function deleteAmazonAffiliateListing(id) {
-  const res = await fetch(`${LISTINGS_BASE}/${id}`, {
-    method: 'DELETE',
-    headers: authHeaders(),
-  });
-  const data = await readJsonResponse(res, 'Delete Amazon listing');
-  throwIfNotOk(res, data, 'Delete Amazon listing');
-  return data ?? {};
+  const data = await apiRequest({ method: 'DELETE', url: `${BASE}/${id}` }, 'Delete Amazon listing');
+  return data || {};
 }
